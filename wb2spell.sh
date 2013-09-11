@@ -13,6 +13,7 @@ mkdir /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/
 mkdir /home/wen/WormBaseToSPELL/currentSPELL/download/tables/
 cp /home/citace/WS/ONTOLOGY/gene_ontology.WS*.obo /home/wen/SPELL/TablesForSPELL/gene_ontology.obo
 cp /home/citace/WS/ONTOLOGY/gene_association.WS*.wb /home/wen/SPELL/TablesForSPELL/gene_association.wb
+cp /home/wen/WormBaseToSPELL/bin/download_index.html /home/wen/SPELL/TablesForSPELL/.
 
 #This will create WBGeneName.ace, WBCeTARSample.ace and WBCeRNAseqAnalysis.ace files
 cd /home/wen/WormBaseToSPELL/currentSPELL/
@@ -104,10 +105,16 @@ cat /home/wen/WormBaseToSPELL/c_*/mrFileList.txt /home/wen/WormBaseToSPELL/p_*/m
 /home/wen/WormBaseToSPELL/bin/listProbeMrFiles.pl
 chmod a+x addTitle_MrProbeFiles.sh
 tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/MrDataProbeCentric.tgz  *.csv
+#Gene Alias Table
 cd /home/wen/WormBaseToSPELL/currentSPELL/download/tables/
+cp /home/wen/SPELL/TablesForSPELL/alias_to_systematic.txt alias_to_systematic.csv
+tar -zcvf GeneAlias.tgz alias_to_systematic.csv
+rm alias_to_systematic.csv
+#Other Tables
 /home/wen/Tables/bin/createTopoMapTable.pl
 /home/wen/Tables/bin/makeGeneTissueTable.pl
 /home/wen/Tables/bin/makeTissueGeneTable.pl
 /home/wen/Tables/bin/makeGeneExprClusTable.pl
 /home/wen/Tables/bin/makeMrExpTable.pl
 
+#After these are done. Copy all the files to canopus ftp site. 
