@@ -4,7 +4,7 @@ use Ace;
 
 #-------------------Type out the purpose of the script-------------
 print "This script checks WormBase RNAseq data and make dataset file for SPELL\n";
-print "Output file: dataset_list_RNAseq.txt\n\n";
+print "Output file: dataset_list_RNAseq.txt, dataset_table_RNAseq.txt\n";
 
 
 if ($#ARGV !=0) {
@@ -20,7 +20,7 @@ my %speName = ("cbg" => "Caenorhabditis briggsae",
 my $specode = $ARGV[0];
 
 if ($speName{$specode}) {
-    print "***** Prepare PCL files for microarray data for $speName{$specode} *****\n";    
+    print "***** Prepare PCL files for RNAseq data for $speName{$specode} *****\n";    
 } else {
     die "Species code $specode is not recognized.\n";
 }
@@ -52,6 +52,25 @@ my @Abstract;
 my @exp;
 my @Cond_description;
 my @Cond_count;
+
+#------------Get GEO accession numbers----------------------
+my ($gds, $gpl, $TotalColumns);
+my %PaperGDS;
+my %PaperGPL;
+open (GEOT, "/home/wen/LargeDataSets/Microarray/CurationLog/FindID/MAPaperGSETable_RNAseq.txt") || die "can't open $!";
+while($line = <GEOT>){
+    chomp ($line);
+    @tmp=split("\t", $line);
+    $TotalColumns = @tmp;
+    #print "$TotalColumns\n";
+    next unless ($TotalColumns == 5);
+    $PaperGDS{$tmp[1]} = $tmp[4];
+    $PaperGPL{$tmp[1]} = $tmp[3];
+    #print "$tmp[1] $PaperGDS{$tmp[1]} $PaperGPL{$tmp[1]}\n";
+}
+close (GEOT);
+@tmp = ();
+
 
 #--------------Query for Microarray reference in WS ----------------
 print "Look for RNAseq Papers ...";
@@ -129,8 +148,22 @@ foreach my $paper (@Papers) {
     close (COND);
 
     $ChannelCount = 1;
+
+
+    if ($PaperGDS{$paper}) {
+	$gds = $PaperGDS{$paper};
+    } else {
+	$gds = "N.A.";
+    }
+
+    if ($PaperGPL{$paper}) {
+	$gpl = $PaperGPL{$paper};
+    } else {
+	$gpl = "N.A.";
+    }
+
     #print DATASET "$id\t$PMID[$id]\t$PaperID[$id].rs.paper\tN.A.\tN.A.\t$ChannelCount\tRNAseq: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\tN.A.\tN.A.\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\t$gds\t$gpl\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
     #print LIST "$id\t$paper.rs.paper\n";
     print LIST "$paper.$specode.rs.paper\n";
 }
@@ -143,5 +176,5 @@ close (IN);
 close (DATASET);
 close (LIST);
 $db->close();
-print "$Total_datasets papers parsed for $speName{$specode} RNAseq.\n";
+print "$Total_datasets papers parsed for $speName{$specode} RNAseq.\n\n";
 
