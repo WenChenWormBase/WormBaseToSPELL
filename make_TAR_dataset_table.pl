@@ -4,7 +4,7 @@ use Ace;
 
 #-------------------Type out the purpose of the script-------------
 print "This script checks WormBase Tiling Array data and make dataset file for SPELL\n";
-print "Output file: dataset_list_TAR.txt, dataset_table_TAR.txt\n\n";
+print "Output file: dataset_list_TAR.txt, dataset_table_TAR.txt\n";
 
 open (DATASET, ">dataset_table_TAR.txt") || die "can't open $!";
 open (LIST, ">dataset_list_TAR.txt") || die "can't open $!";
@@ -40,6 +40,26 @@ my @Abstract;
 my @exp;
 my @Cond_description;
 my @Cond_count;
+
+
+
+#------------Get GEO accession numbers----------------------
+my ($gds, $gpl, $TotalColumns);
+my %PaperGDS;
+my %PaperGPL;
+open (GEOT, "/home/wen/LargeDataSets/Microarray/CurationLog/FindID/MAPaperGSETable_RNAseq.txt") || die "can't open $!";
+while($line = <GEOT>){
+    chomp ($line);
+    @tmp=split("\t", $line);
+    $TotalColumns = @tmp;
+    #print "$TotalColumns\n";
+    next unless ($TotalColumns == 5);
+    $PaperGDS{$tmp[1]} = $tmp[4];
+    $PaperGPL{$tmp[1]} = $tmp[3];
+    #print "$tmp[1] $PaperGDS{$tmp[1]} $PaperGPL{$tmp[1]}\n";
+}
+close (GEOT);
+@tmp = ();
 
 #--------------Query for Tiling array reference in WS ----------------
 print "Look for Tiling Array Papers ...";
@@ -116,9 +136,22 @@ foreach my $paper (@Papers) {
     close (COND);
 
     $ChannelCount = 1;
+
+    if ($PaperGDS{$paper}) {
+	$gds = $PaperGDS{$paper};
+    } else {
+	$gds = "N.A.";
+    }
+
+    if ($PaperGPL{$paper}) {
+	$gpl = $PaperGPL{$paper};
+    } else {
+	$gpl = "N.A.";
+    }
+
 #    print DATASET "$id\t$PMID[$id]\t$PaperID[$id].tr.paper\tN.A.\tN.A.\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
 #    print LIST "$id\t$paper.tr.paper\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\tN.A.\tN.A.\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\t$gds\t$gpl\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
     print LIST "$paper.ce.tr.paper\n";
 
 
@@ -132,5 +165,5 @@ $Total_datasets = $id;
 close (IN);
 close (DATASET);
 close (LIST);
-print "$Total_datasets papers parsed including Tiling Array, RNAseq and Microarray.\n";
+print "$Total_datasets papers parsed for Tiling Array.\n\n";
 
