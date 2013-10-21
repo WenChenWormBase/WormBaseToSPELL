@@ -163,7 +163,7 @@ foreach my $paper (@Papers) {
     }
 
     #print DATASET "$id\t$PMID[$id]\t$PaperID[$id].rs.paper\tN.A.\tN.A.\t$ChannelCount\tRNAseq: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\t$gds\t$gpl\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\t$gds\t$gpl\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: RNAseq\|Species: $speName{$specode}\n";
     #print LIST "$id\t$paper.rs.paper\n";
     print LIST "$paper.$specode.rs.paper\n";
 }
