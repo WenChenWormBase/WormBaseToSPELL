@@ -151,11 +151,8 @@ foreach my $paper (@Papers) {
 
 #    print DATASET "$id\t$PMID[$id]\t$PaperID[$id].tr.paper\tN.A.\tN.A.\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
 #    print LIST "$id\t$paper.tr.paper\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\t$gds\t$gpl\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\t$gds\t$gpl\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: tiling array\|Species: Caenorhabditis elegans\n";
     print LIST "$paper.ce.tr.paper\n";
-
-
-
 }
 
 #-----------------------------------------------------------
