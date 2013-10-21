@@ -356,9 +356,9 @@ while ($paperid <= $TotalPaper) {
 
     print "No numGene for $PaperID[$paperid]\n" unless ($NumGene{$PaperID[$paperid]});
 
-    #print DATASET "$paperid\t$PMID[$paperid]\t$PaperID[$paperid].mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tdefault\n";
     print LIST "$PaperID[$paperid].$specode.mr.paper\n";
-    print DATASET "$PMID[$paperid]\t$PaperID[$paperid].$specode.mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tdefault\n";
+    #print DATASET "$PMID[$paperid]\t$PaperID[$paperid].$specode.mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tdefault\n";
+    print DATASET "$PMID[$paperid]\t$PaperID[$paperid].$specode.mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tMethod: microarray\|Species: $speName{$specode}\n";
     $paperid++;
 }
 close (DATASET);
