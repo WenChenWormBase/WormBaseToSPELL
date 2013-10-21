@@ -5,8 +5,8 @@ use DBI();
 $host = "localhost";
 #$database = "spell_test";
 $database = "spell_dev";
-$user = "wen";
-$pw = "msqv^0*+";
+$user = "";
+$pw = "";
 
 # PERL MYSQL CONNECT()
 #$dbh = DBI->connect("DBI:mysql:$database:$host", $user, $pw,
