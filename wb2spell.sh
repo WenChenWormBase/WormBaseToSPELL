@@ -70,7 +70,7 @@ cd /home/wen/WormBaseToSPELL/TilingArray/
 
 #move PCL files and downloadable files to TablesForSPELL/
 mv /home/wen/WormBaseToSPELL/TilingArray/*.paper  /home/wen/SPELL/TablesForSPELL/noempty/.
-mv /home/wen/WormBaseToSPELL/TilingArray/*.csv /home/wen/SPELL/TablesForSPELL/download/.
+mv /home/wen/WormBaseToSPELL/TilingArray/*.csv  /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
 mv /home/wen/WormBaseToSPELL/c_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
 mv /home/wen/WormBaseToSPELL/p_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
 mv /home/wen/WormBaseToSPELL/c_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
@@ -105,6 +105,8 @@ cat /home/wen/WormBaseToSPELL/c_*/mrFileList.txt /home/wen/WormBaseToSPELL/p_*/m
 /home/wen/WormBaseToSPELL/bin/listProbeMrFiles.pl
 chmod a+x addTitle_MrProbeFiles.sh
 tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/MrDataProbeCentric.tgz  *.csv
+#SPELL mySQL tables
+tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/SPELLmySQL.tgz /home/wen/SPELL/TablesForSPELL/dataset_list.txt /home/wen/SPELL/TablesForSPELL/dataset_table.txt /home/wen/SPELL/TablesForSPELL/expressionTable.txt /home/wen/SPELL/TablesForSPELL/gene_list.txt /home/wen/SPELL/TablesForSPELL/systematic_to_common.txt  /home/wen/SPELL/SpellUpdate/spell_web/db/create.sql
 #Gene Alias Table
 cd /home/wen/WormBaseToSPELL/currentSPELL/download/tables/
 cp /home/wen/SPELL/TablesForSPELL/alias_to_systematic.txt alias_to_systematic.csv
