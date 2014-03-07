@@ -17,7 +17,7 @@ Create gene_list.txt, alias_to_systematic.txt, and systematic_to_common.txt file
 
 4. createMrPCLandTables.pl
 
-Create PCL files, dataset_list_mr.txt and dataset_table_mr.txt files for microarray data of different species. Need to add species specifications when running the script. For example: ./createMrPCLandTables.pl ce
+Create PCL files, dataset_list_mr.txt and dataset_table_mr.txt files for microarray data of different species. This script can parse all species at the same time. For example: ./createMrPCLandTables.pl
 
 5. createRNAseqPCL.pl  
 
@@ -51,7 +51,9 @@ This script update SPELL database with the newly generated table files.
 
 Create a shell script called addTitle_MrProbeFiles.sh to add column titles to the probe centric microarray data files. 
 
+13. create_cv_terms_and_defs.pl
 
+This script create part of rhtml files for SPELL to display definition of tags. out file is called add_CV_link.rhtml. It does not need to be run in every build. It is only done when new tags are added to SPELL datasets.
 
 
 --------------------------------------------------
