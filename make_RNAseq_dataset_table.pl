@@ -29,13 +29,6 @@ open (DATASET, ">dataset_table_RNAseq.txt") || die "can't open $!";
 open (LIST, ">dataset_list_RNAseq.txt") || die "can't open $!";
 
 my $id = 0;
-#my $mrdataset; 
-#open (MRLIST, "/home/wen/WormBaseToSPELL/Microarray/dataset_list_mr.txt") || die "can't open $!";
-#while ($mrdataset = <MRLIST>) {
-#    $id++;
-#}
-#close (MRLIST);
-#print "$id microarray datasets found.\n";
 
 my @tmp;
 my ($FirstName, $Total_datasets, $Author_count, $Abs, $ChannelCount, $line, $database, $numGene);
@@ -76,15 +69,40 @@ close (GEOT);
 print "Look for RNAseq Papers ...";
 my $db = Ace->connect(-path => '/home/citace/WS/acedb/',  -program => '/usr/local/bin/tace') || die print "Connection failure: ", Ace->error;
 
-#my $query='find Analysis Database = SRA; follow Reference';
-my $query="QUERY FIND Analysis Database = SRA; follow Sample; Species = \"$speName{$specode}\"; follow Reference";
+my $paper;
+my @topic;
+my $topicName;
+my %topicPaper;
+my %tissuePaper;
+
+#get tissue information
+my $query="query find Condition Tissue = *";
+my @conditionList=$db->find($query);
+foreach (@conditionList) {
+    if ($_->Reference) {
+	$paper = $_->Reference;
+	$tissuePaper{$paper} = "|Tissue Specific";
+    }
+}
+
+
+$query="QUERY FIND Analysis Database = SRA; follow Sample; Species = \"$speName{$specode}\"; follow Reference";
 my @Papers=$db->find($query);
 
 print scalar @Papers, " RNAseq Papers found for $speName{$specode}.\n";
 #--------------Done query for microarray papers in WS ------
 
+
+
+
 #-------------------------------------------------------------------
-foreach my $paper (@Papers) {
+foreach $paper (@Papers) {
+    if ($tissuePaper{$paper}) {
+	#do nothing
+    } else {
+	$tissuePaper{$paper} = "";
+    }
+
     $id++;
     $PaperID[$id] = $paper;
 
@@ -140,6 +158,20 @@ foreach my $paper (@Papers) {
 	$Abstract[$id] = "N.A.";
     }
 
+    #get topic information
+    if ($paper->WBProcess) {
+	@topic = $paper->WBProcess;
+	$topicPaper{$paper} = "";
+	foreach (@topic) {
+	    $topicName = $_->Public_name;
+	    $topicName = "Topic: $topicName";
+	    $topicPaper{$paper} = "$topicPaper{$paper}\|$topicName";
+	}
+    } else {
+	$topicPaper{$paper} = "";
+    }
+    #---- done -----------
+
     open (COND, "$paper.$specode.rs.cond")  || die "cannot open $!\n";
     while ($line = <COND>) {
 	chomp ($line);
@@ -162,8 +194,7 @@ foreach my $paper (@Papers) {
 	$gpl = "N.A.";
     }
 
-    #print DATASET "$id\t$PMID[$id]\t$PaperID[$id].rs.paper\tN.A.\tN.A.\t$ChannelCount\tRNAseq: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\t$gds\t$gpl\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: RNAseq\|Species: $speName{$specode}\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].$specode.rs.paper\t$gds\t$gpl\t$ChannelCount\t$Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: RNAseq\|Species: $speName{$specode}$topicPaper{$paper}$tissuePaper{$paper}\n";
     #print LIST "$id\t$paper.rs.paper\n";
     print LIST "$paper.$specode.rs.paper\n";
 }
