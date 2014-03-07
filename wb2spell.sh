@@ -32,32 +32,33 @@ mv systematic_to_common.txt /home/wen/SPELL/TablesForSPELL/.
 #Make PCL files for Microarray and RNAseq for multi species
 #This will create *.paper, *.csv files, as well as dataset_list_...txt and dataset_table_....txt files for microarray and RNAseq datasets.
 cd /home/wen/WormBaseToSPELL/c_elegans/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl ce
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl ce
+/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl ce
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl ce
 
 cd /home/wen/WormBaseToSPELL/c_briggsae/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cbg
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cbg
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl cbg
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl cbg
 
 cd /home/wen/WormBaseToSPELL/c_brenneri/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cbn
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cbn
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl cbn
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl cbn
 
 cd /home/wen/WormBaseToSPELL/c_remanei/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cre
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cre
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl cre
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl cre
 
 cd /home/wen/WormBaseToSPELL/c_japonica/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cja
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl cja
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl cja
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl cja
 
 cd /home/wen/WormBaseToSPELL/p_pacificus/
-/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl ppa
+#/home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl ppa
 #/home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl ppa
 #/home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl ppa
 #No RNAseq for ppa
@@ -72,16 +73,18 @@ cd /home/wen/WormBaseToSPELL/TilingArray/
 mv /home/wen/WormBaseToSPELL/TilingArray/*.paper  /home/wen/SPELL/TablesForSPELL/noempty/.
 mv /home/wen/WormBaseToSPELL/TilingArray/*.csv  /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
 mv /home/wen/WormBaseToSPELL/c_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
-mv /home/wen/WormBaseToSPELL/p_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
+#mv /home/wen/WormBaseToSPELL/p_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
 mv /home/wen/WormBaseToSPELL/c_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
-mv /home/wen/WormBaseToSPELL/p_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+#mv /home/wen/WormBaseToSPELL/p_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
 cd /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/
 tar -zcvf AllDatasetsDownload.tgz *.csv
 
 #This will create dataset_list.txt and dataset_table.txt files for all species and experiments.
 cd /home/wen/WormBaseToSPELL/currentSPELL/
-cat /home/wen/WormBaseToSPELL/c_*/dataset_list*.txt  /home/wen/WormBaseToSPELL/p_*/dataset_list*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_list_TAR.txt  > noid_dataset_list.txt
-cat /home/wen/WormBaseToSPELL/c_*/dataset_table*.txt  /home/wen/WormBaseToSPELL/p_*/dataset_table*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_table_TAR.txt  > noid_dataset_table.txt
+#cat /home/wen/WormBaseToSPELL/c_*/dataset_list*.txt  /home/wen/WormBaseToSPELL/p_*/dataset_list*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_list_TAR.txt  > noid_dataset_list.txt
+#cat /home/wen/WormBaseToSPELL/c_*/dataset_table*.txt  /home/wen/WormBaseToSPELL/p_*/dataset_table*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_table_TAR.txt  > noid_dataset_table.txt
+cat /home/wen/WormBaseToSPELL/c_*/dataset_list*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_list_TAR.txt  > noid_dataset_list.txt
+cat /home/wen/WormBaseToSPELL/c_*/dataset_table*.txt  /home/wen/WormBaseToSPELL/TilingArray/dataset_table_TAR.txt  > noid_dataset_table.txt
 /home/wen/WormBaseToSPELL/bin/enrich_dataset_table.pl 
 mv dataset_list.txt /home/wen/SPELL/TablesForSPELL/.
 mv dataset_table.txt /home/wen/SPELL/TablesForSPELL/.
@@ -101,7 +104,8 @@ java -Xmx2g -jar create_expression_table.jar /home/wen/SPELL/SpellUpdate/spell_w
 
 #Create Tables for users to download.
 cd /home/citace/MrData/ProbeCentricData/
-cat /home/wen/WormBaseToSPELL/c_*/mrFileList.txt /home/wen/WormBaseToSPELL/p_*/mrFileList.txt > mrFileList.txt
+#cat /home/wen/WormBaseToSPELL/c_*/mrFileList.txt /home/wen/WormBaseToSPELL/p_*/mrFileList.txt > mrFileList.txt
+cp /home/wen/WormBaseToSPELL/c_elegans/mrFileList.txt mrFileList.txt
 /home/wen/WormBaseToSPELL/bin/listProbeMrFiles.pl
 chmod a+x addTitle_MrProbeFiles.sh
 tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/MrDataProbeCentric.tgz  *.csv
@@ -118,5 +122,6 @@ rm alias_to_systematic.csv
 /home/wen/Tables/bin/makeTissueGeneTable.pl
 /home/wen/Tables/bin/makeGeneExprClusTable.pl
 /home/wen/Tables/bin/makeMrExpTable.pl
+/home/wen/Tables/bin/makeRNAiPhenoTable.pl
 
 #After these are done. Copy all the files to canopus ftp site. 
