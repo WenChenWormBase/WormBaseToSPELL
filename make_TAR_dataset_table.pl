@@ -65,7 +65,23 @@ close (GEOT);
 print "Look for Tiling Array Papers ...";
 my $db = Ace->connect(-path => '/home/citace/WS/acedb/',  -program => '/usr/local/bin/tace') || die print "Connection failure: ", Ace->error;
 
-my $query='QUERY FIND Condition TAR*; follow Reference';
+my $paper;
+my @topic;
+my $topicName;
+my %topicPaper;
+my %tissuePaper;
+
+#get tissue information
+my $query="query find Condition Tissue = *";
+my @conditionList=$db->find($query);
+foreach (@conditionList) {
+    if ($_->Reference) {
+	$paper = $_->Reference;
+	$tissuePaper{$paper} = "|Tissue Specific";
+    }
+}
+
+$query='QUERY FIND Condition TAR*; follow Reference';
 my @Papers=$db->find($query);
 
 print scalar @Papers, " Tiling Array Papers found.\n";
@@ -128,6 +144,22 @@ foreach my $paper (@Papers) {
 	$Abstract[$id] = "N.A.";
     }
 
+
+    #get topic information
+    if ($paper->WBProcess) {
+	@topic = $paper->WBProcess;
+	$topicPaper{$paper} = "";
+	foreach (@topic) {
+	    $topicName = $_->Public_name;
+	    $topicName = "Topic: $topicName";
+	    $topicPaper{$paper} = "$topicPaper{$paper}\|$topicName";
+	}
+    } else {
+	$topicPaper{$paper} = "";
+    }
+    #---- done -----------
+
+
     open (COND, "/home/wen/WormBaseToSPELL/TilingArray/$paper.ce.tr.cond")  || die "cannot open $!\n";
     while ($line = <COND>) {
 	chomp ($line);
@@ -151,7 +183,7 @@ foreach my $paper (@Papers) {
 
 #    print DATASET "$id\t$PMID[$id]\t$PaperID[$id].tr.paper\tN.A.\tN.A.\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tdefault\n";
 #    print LIST "$id\t$paper.tr.paper\n";
-    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\t$gds\t$gpl\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: tiling array\|Species: Caenorhabditis elegans\n";
+    print DATASET "$PMID[$id]\t$PaperID[$id].ce.tr.paper\t$gds\t$gpl\t$ChannelCount\tTilingArray: $Title[$id]\t$Abstract[$id]\t$Cond_count[$id]\t$numGene\t$First_author[$id]\t$AllAuthors[$id]\t$Title[$id]\t$Journal[$id]\t$Year[$id]\t$Cond_description[$id]\tMethod: tiling array\|Species: Caenorhabditis elegans$topicPaper{$paper}$tissuePaper{$paper}\n";
     print LIST "$paper.ce.tr.paper\n";
 }
 
