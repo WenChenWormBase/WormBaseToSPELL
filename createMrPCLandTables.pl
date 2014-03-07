@@ -5,204 +5,193 @@ use Ace;
 use Getopt::Long;
 use Storable qw(store retrieve);
 
-if ($#ARGV !=0) {
-    die "usage: $0 series_file ace\n";
-}
-
 my %speName = ("cbg" => "Caenorhabditis briggsae",
 	       "cbn" => "Caenorhabditis brenneri",
 	       "cja" => "Caenorhabditis japonica",
 	       "cre" => "Caenorhabditis remanei",
 	       "ce" => "Caenorhabditis elegans",
 	       "ppa" => "Pristionchus pacificus");
-my $specode = $ARGV[0];
 
-if ($speName{$specode}) {
-    print "***** Prepare PCL files for microarray data for $speName{$specode} *****\n";    
-} else {
-    die "Species code $specode is not recognized.\n";
-}
+#if ($speName{$specode}) {
+#    print "***** Prepare PCL files for microarray data for $speName{$specode} *****\n";    
+#} else {
+#    die "Species code $specode is not recognized.\n";
+#}
 
-
-my ($paper, $database, $exp, $TotalPaper, $gene, $mr_result, $line, $TotalColumns, $value, $MrKey, $TotalMrData, $dataline, $noempty, $gds, $gpl, $e, $spe);
-my $geneid=0;
-my $expid=0; #count of total experiments in all papers.
-my $expDesc="";
-my %PaperExp;
-my %ExpPaper;
-my %GeneMrResult;
-my %PaperGeneNumber;
-my %MrValue;
 my @tmp;
-my @mrResultList;
-my @geneList;
-my @allexp; #all microarray experiments including other species 
-my @expList; #c elegans experiment list only
+my @stuff;
+
+my ($paper, $database, $exp, $gene, $mr_result, $line, $TotalColumns, $value, $MrKey, $TotalMrData, $dataline, $noempty, $gds, $gpl, $e, $specode);
+
 my @paperList;
 
+my ($FirstName, $Author_count, $Abs, $ChannelCount);
 
-my $paperid = 0 ;
-my ($FirstName, $Total_datasets, $Author_count, $Abs, $ChannelCount);
-my @PaperID;
-my %IDforPaper;
-my @PMID;
-my @Title;
-my @Journal;
-my @Year;
-my @Authors;
-my @First_author;
-my @LastName;
-my @AllAuthors;
-my @Abstract;
 my @Cond_description;
 my @Cond_count;
 my @Chan_count;
-my %NumGene;
+my @NumGene;
+
 my %PaperGDS;
 my %PaperGPL;
 
 my $tace='/usr/local/bin/tace';
 
-#------------Get GEO accession numbers----------------------
-if ($specode eq "ce") {
-open (GEOT, "/home/wen/LargeDataSets/Microarray/CurationLog/FindID/MAPaperGSETable.txt") || die "can't open $!";
-while($line = <GEOT>){
-    chomp ($line);
-    @tmp=split("\t", $line);
-    $TotalColumns = @tmp;
-    #print "$TotalColumns\n";
-    next unless ($TotalColumns == 5);
-    $PaperGDS{$tmp[1]} = $tmp[4];
-    $PaperGPL{$tmp[1]} = $tmp[3];
-    #print "$tmp[1] $PaperGDS{$tmp[1]} $PaperGPL{$tmp[1]}\n";
-}
-close (GEOT);
-}
 #---------- Start Parsing Paper Class ----------------------
 print "connecting to WS_current ...\n";
 print "Build Microarray Paper - Experiment table...\n";
 my $acedbpath='/home/citace/WS/acedb/';
 my $db = Ace->connect(-path => $acedbpath,  -program => $tace) || die print "Connection failure: ", Ace->error;
 
-#my $query="query find Paper Microarray_experiment & !*30980* & !*32290";
-
-my $query="query find Microarray_experiment Species = \"$speName{$specode}\"; follow Reference; !*30980* & !*32290";
+my $query="query find Microarray_experiment; follow Reference";
 my @paperList=$db->find($query);
+my $TotalPaper = @paperList;
+
+my @expList; #list of experiments in each dataset
+my %Chan_count_exp; #for each experiment
+my %PMID; #for each paper
+my %Title; #for each paper
+my %Journal; #for each paper
+my %Year; #for each paper
+my @Authors;
+my %First_author; #for each paper
+#my %LastName;
+my %AllAuthors; #for each paper
+my %Abstract; #for each paper
+
+my @topic;
+my $topicName;
+my %topicPaper;
+my %tissuePaper;
 
 foreach my $paper (@paperList) {
-    $paperid++;
-    $PaperID[$paperid] = $paper;
-    $IDforPaper{$paper} = $paperid;
 
-    @expList = ();
-    $e = 0; #experiment id
-    @allexp = $paper->Microarray_experiment;
-    $expDesc="";
-    foreach $exp (@allexp) {
-	$spe = $exp->Species;
-	next unless ($spe eq $speName{$specode});
-	$expList[$e] = $exp;
-	$e++;
-	$expid++;
-	$PaperExp{$exp} = $paper;
-	if ($exp eq $expList[0]) {
-	    $expDesc = $exp;
+    $tissuePaper{$paper} = ""; # preset all paper as not tissue specific, will update later.
+
+#------ identify channel info ----------------- 
+    @expList = $paper->Microarray_experiment;
+    foreach $exp (@expList) {
+	if ($exp->Microarray_sample) {
+	    $ChannelCount = 1;
+	} elsif ($exp->Sample_A) {
+	    $ChannelCount = 2;
 	} else {
-	    $expDesc = "$expDesc~$exp";
+	    print "ERROR! Cannot find channel info from $exp\n";
 	}
+	$Chan_count_exp{$exp} = $ChannelCount;
     }
-    $Cond_count[$paperid] = @expList;
-    $Cond_description[$paperid] = $expDesc;
-
-    $ExpPaper{$paper} = $expDesc;
+#-----------------------------------------------
 
     if ($paper->Database) {
 	$database = $paper->get('Database', 2);
 	if ($database eq "PMID") {
-	    $PMID[$paperid] = $paper->get('Database', 3);
+	    $PMID{$paper} = $paper->get('Database', 3);
 	}
     } else {
-	$PMID[$paperid] = 0;
+	$PMID{$paper} = 0;
     }
 
     if ($paper->Title) {
-	$Title[$paperid] = $paper->Title;
+	$Title{$paper} = $paper->Title;
     } else {
-        $Title[$paperid] = "N.A.";
+        $Title{$paper} = "N.A.";
     }
     if ($paper->Journal) {
-        $Journal[$paperid] = $paper->Journal;
+        $Journal{$paper} = $paper->Journal;
     } else {
-        $Journal[$paperid] = "N.A.";
+        $Journal{$paper} = "N.A.";
     }
 
     if ($paper->Publication_date) {    	
 	@tmp = split '-', $paper->Publication_date; 
-	$Year[$paperid] = $tmp[0];
+	$Year{$paper} = $tmp[0];
     } else {
-	$Year[$paperid] = 0;
+	$Year{$paper} = 0;
     }
 
     if ($paper->Author) {
 	@Authors = $paper->Author;
-	$First_author[$paperid] = $Authors[0];
-	($LastName[$paperid], $FirstName) = split (/\s/, $First_author[$paperid]);
+	$First_author{$paper} = $Authors[0];
+	#($LastName[$paperid], $FirstName) = split (/\s/, $First_author[$paperid]);
 	$Author_count = 0;
 	foreach (@Authors) {	
 	    if ($Author_count == 0) { 
-		$AllAuthors[$paperid] = $Authors[0];
+		$AllAuthors{$paper} = $Authors[0];
 	    } else {
-		$AllAuthors[$paperid] = "$AllAuthors[$paperid], $_";
+		$AllAuthors{$paper} = "$AllAuthors{$paper}, $_";
 	    } 
 	    $Author_count++;
 	}
     } else {
-	$First_author[$paperid] = "N.A.";
-	$AllAuthors[$paperid] = "N.A.";
+	$First_author{$paper} = "N.A.";
+	$AllAuthors{$paper} = "N.A.";
     }
 
     if ($paper->Abstract) {
-	$Abstract[$paperid] = $paper->Abstract->right;
-	@tmp = split '\n', $Abstract[$paperid];
-	$Abstract[$paperid] = $tmp[1];
+	$Abstract{$paper} = $paper->Abstract->right;
+	@tmp = split '\n', $Abstract{$paper};
+	$Abstract{$paper} = $tmp[1];
     } else {
-	$Abstract[$paperid] = "N.A.";
+	$Abstract{$paper} = "N.A.";
     }
 
-    if ($paper->Microarray_experiment->Microarray_sample) {
-	$ChannelCount = 1;
+    #get topic information
+    if ($paper->WBProcess) {
+	@topic = $paper->WBProcess;
+	$topicPaper{$paper} = "";
+	foreach (@topic) {
+	    $topicName = $_->Public_name;
+	    $topicName = "Topic: $topicName";
+	    $topicPaper{$paper} = "$topicPaper{$paper}\|$topicName";
+	}
     } else {
-	$ChannelCount = 2;
+	$topicPaper{$paper} = "";
     }
-    $Chan_count[$paperid] = $ChannelCount;
+
 }
+
+#get tissue information
+$query="query find Condition Tissue = *";
+my @conditionList=$db->find($query);
+foreach (@conditionList) {
+    if ($_->Reference) {
+	$paper = $_->Reference;
+	$tissuePaper{$paper} = "|Tissue Specific";
+    }
+}
+
 $db->close();
-$TotalPaper = @paperList;
-print "$expid Microarray Experiments found in $TotalPaper papers.\n";
+print "$TotalPaper microarray papers found in ACeDB.\n";
 #----------Finish Parsing Paper Class ------------------------
 
 
 #---------Start Parsing Gene Class ----------------------------
-
 print "Build Gene - Microarray_results table...\n";
 
-#$query="QUERY Find Gene Microarray_results";
-#my $iterator=$db->fetch_many(-query=>$query);
+#Get mappings from external mapping files --------
+my $mFileName;
+my $mfid = 0; 
+my $geneid=0;
+my %GeneMrResult;
 
-#while (my $gene=$iterator->next) {
-#    $geneid++; 
-#    print "$geneid genes processed.\n" if $geneid % 10000 == 0;    
-#    @mrResultList = $gene->Microarray_results;
-#    foreach $mr_result (@mrResultList) {
-#	$GeneMrResult{$mr_result} = $gene;
-#    }
-#}
-#$db->close();
+open (MFL, "/home/wen/WormBaseToSPELL/bin/mapping/mapping_file_list.txt") || die "can't open $!"; 
+while ($mFileName = <MFL>) {
+    chomp ($mFileName);
+    open (MFNAME, $mFileName) || die "can't open $!";
+    while ($line = <MFNAME>) {
+	chomp ($line);
+	($mr_result, $gene) = split /\t/, $line;
+	$GeneMrResult{$mr_result} = $gene;
+    }
+    close (MFNAME);
+    $mfid ++;
+}
+print "$mfid external mapping files parsed.\n";
+close (MFL);
 
+#Get mappings from ACeDB -----------------------------
 open (WGM, "/home/wen/WormBaseToSPELL/ace_files/WBGeneMr.ace") || die "can't open $!"; 
 
-my $gene;
-my @stuff;
 while ($line = <WGM>) {
     if ($line =~ /^Gene/) {
 	($stuff[0], $gene) = split'"', $line;
@@ -218,41 +207,86 @@ while ($line = <WGM>) {
 }
 @stuff = ();
 print "$geneid genes found with Microarray_results\n";
+close (WGM);
 #-------------Finish Parsing Gene Class ------------------------
 
 
-#--------Printing Files for Probe Centric Microarray Data --------------------
+#-------------- Get dataset - paper list from microarray flat file names  ---
 my @fileList;
-my $fileListID = 0;
-open (LIST, ">dataset_list_mr.txt") || die "can't open dataset_list.txt!";
+my $dataset_id = 0;
+my $pclName; #name of PCL files, must be unique
+my @pclDataset;
+my @paperDataset;
+my @speDataset;
+print "Get dataset - paper reference ... \n"; 
 open (PROBEFILE, "mrFileList.txt") || die "can't open $!"; 
 while ($line=<PROBEFILE>) {
     chomp($line);
-    $fileList[$fileListID] = $line;
-    $fileListID++;
+ 
+    #get species info from file name 
+    if ($line =~ /MrData/) {
+	$specode = "ce";                
+    } elsif ($line =~ /Mrcbg/) {
+	$specode = "cbg";
+    } elsif ($line =~ /Mrcbn/) {
+	$specode = "cbn";
+    } elsif ($line =~ /Mrcja/) {
+	$specode = "cja";
+    } elsif ($line =~ /Mrcre/) {
+	$specode = "cre";
+    } elsif ($line =~ /Mrppa/) {
+	$specode = "ppa";
+    } else {
+	print "ERROR! Cannot identify species info from $line\n"; 
+    }
+    $speDataset[$dataset_id] = $specode;
+
+    #get paper id from file name
+    ($stuff[0], $stuff[1]) = split /WBPaper/, $line; #get everything after WBPaper
+    $stuff[1] = join "", "WBPaper", $stuff[1];
+    $paper = substr $stuff[1], 0, 15;
+
+    ($stuff[2], $stuff[3]) = split /Mr/, $stuff[1];
+    $pclName = join '.', $stuff[2], $specode, "mr";
+    
+    #print "$dataset_id $pclName.paper or .csv $line\n"; #for script testing 
+
+    $pclDataset[$dataset_id] = $pclName;
+    $paperDataset[$dataset_id] = $paper;
+    $fileList[$dataset_id] = $line;
+    $dataset_id++;
 }
 close(PROBEFILE);
-print "$fileListID datasets found.\n";
+@stuff = ();
+my $TotalDataset = $dataset_id;
+print "$TotalDataset datasets found.\n";
+#-----------  dataset - paper list prepared -------------------------------------
+
+
+#------------ Printing Files for Probe Centric Microarray Data ------------
+
+print "Read probe centric Microarray data ... \n";
+
+open (TEST, ">test.txt") || die "can't open $!"; #This files stores information about all duplicate data or missing data
+
+my %MrValue;
+my @geneList;
 my %geneExist; #this tells if the gene already appeared in the databset
 my %MrValueCount; #this count time of a gene measured in the same experiment
 my $averageValue;
 
-print "Read probe centric Microarray data ... \n";
+my $expDesc="";
+my %expRecord; #identify if an experiment was already encountered
 
-open (TEST, ">test.txt") || die "can't open $!";
-
+$dataset_id = -1;
 foreach my $f (@fileList) {
     #print "$f";
     open (IN, "$f") || die "can't open $f";
-    ($stuff[0], $stuff[1]) = split 'WBPaper', $f;
-    if ($specode eq "ce") {
-	($stuff[2], $stuff[3], $stuff[4]) = split /MrData/, $stuff[1];
-    } else {
-	($stuff[2], $stuff[3], $stuff[4]) = split /$specode/, $stuff[1];
-    }
-    $paper = "WBPaper$stuff[2]";
-    $paperid = $IDforPaper{$paper};
-    #print LIST "$paperid\t$paper.$specode.mr.paper\n";
+    $dataset_id++;
+    $paper = $paperDataset[$dataset_id];
+    $pclName = $pclDataset[$dataset_id];
+
+    #print "$dataset_id\t$pclName\n"; #for script testing
     
     #empty all parameters for this paper. 
     $TotalMrData = 0;
@@ -262,6 +296,12 @@ foreach my $f (@fileList) {
     %MrValueCount = (); 
     @expList = ();
     @geneList = ();
+
+    @expList = (); #experiment list for each dataset
+    $e = -1; #experiment id
+    #@allexp = (); #same as expList
+    $expDesc= ""; #experiment description
+
 
     #start parsing the file.
     $geneid = 0;
@@ -274,6 +314,25 @@ foreach my $f (@fileList) {
 	}
 	next unless ($TotalColumns == 10); #WBPaperXXXXXXXXMrData.txt files have 10 columns
 
+	#------ get microarray_experiment info ------------
+	$exp = $tmp[1]; # get name of experiment
+	if ($expRecord{$exp}) {
+	    #already in record, do nothing
+	} else {
+	    $e++;
+	    $expList[$e] = $exp;
+	    $expRecord{$exp} = 1;
+	    if ($e == 0) {
+		$ChannelCount = $Chan_count_exp{$exp};
+		$expDesc = $exp; #first experiment in the dataset
+	    } else {
+		$expDesc="$expDesc~$exp";
+	    }
+	}
+
+	#------ done ---------------------------------------
+
+
 	$mr_result = $tmp[0]; #this is spot ID
 	if ($GeneMrResult{$mr_result}) {
 	    #do nothing
@@ -281,8 +340,6 @@ foreach my $f (@fileList) {
 	    print TEST "Cannot find matching gene for $mr_result\n";
 	}
 	next unless ($GeneMrResult{$mr_result}); #only work on mapped probes.
-	
-	$exp = $tmp[1]; # get name of experiment
 	
 	#get expression value
 	if ($tmp[3] ne "\\N") { #a_vs_b_log_ratio
@@ -324,42 +381,65 @@ foreach my $f (@fileList) {
 	}
 	$TotalMrData++;     
     }
-    $NumGene{$paper} = $geneid;
+    $NumGene[$dataset_id] = $geneid;
+    $Cond_count[$dataset_id] = @expList;
+    $Cond_description[$dataset_id] = $expDesc;
+    #$ExpPaper{$dataset_id} = $expDesc;
+    $Chan_count[$dataset_id] = $ChannelCount;
+
     PrintDataSet (); #print out PCL file 
     PrintDataSetCSV (); #print out downloadable file
-    print "$NumGene{$paper} genes studied in $paper.\n";
+    print "$pclName.paper: $NumGene[$dataset_id] genes, $Cond_count[$dataset_id] experiments, $TotalMrData microarray data processed.\n";
     close (IN);
 }
-print "$TotalMrData microarray data processed. \n";
+print "\n";
 close(TEST);
 
+
+#------------Get GEO accession numbers----------------------
+#if ($specode eq "ce") {
+open (GEOT, "/home/wen/LargeDataSets/Microarray/CurationLog/FindID/MAPaperGSETable.txt") || die "can't open $!";
+while($line = <GEOT>){
+    chomp ($line);
+    @tmp=split("\t", $line);
+    $TotalColumns = @tmp;
+    #print "$TotalColumns\n";
+    next unless ($TotalColumns == 5);
+    $paper = $tmp[1];
+    $gpl = $tmp[3];
+    $gds = $tmp[4];	
+    $PaperGPL{$paper} = $gpl;
+    $PaperGDS{$paper} = $gds;
+    #print "$tmp[1] $PaperGDS{$tmp[1]} $PaperGPL{$tmp[1]}\n";
+}
+close (GEOT);
+
 #-------Start to print dataset list table. -----------------
+
 print "print dataset_table.txt ...";
+open (LIST, ">dataset_list_mr.txt") || die "can't open dataset_list.txt!";
 open (DATASET, ">dataset_table_mr.txt") || die "can't open $!";
-$paperid = 1;
-while ($paperid <= $TotalPaper) {
-    if ($PaperGDS{$PaperID[$paperid]}) {
-	#@tmp = split ',', $PaperGDS{$PaperID[$paperid]};
-	#$gds = $tmp[0];
-	$gds = $PaperGDS{$PaperID[$paperid]};
+$dataset_id = 0;
+while ($dataset_id < $TotalDataset) {
+    $paper = $paperDataset[$dataset_id];
+    $specode = $speDataset[$dataset_id];  
+  
+    if ($PaperGDS{$paper}) {
+	$gds = $PaperGDS{$paper};
     } else {
 	$gds = "N.A.";
     }
 
-    if ($PaperGPL{$PaperID[$paperid]}) {
-	#@tmp = split ',', $PaperGPL{$PaperID[$paperid]};
-	#$gpl = $tmp[0];
-	$gpl = $PaperGPL{$PaperID[$paperid]};
+    if ($PaperGPL{$paper}) {
+	$gpl = $PaperGPL{$paper};
     } else {
 	$gpl = "N.A.";
     }
 
-    print "No numGene for $PaperID[$paperid]\n" unless ($NumGene{$PaperID[$paperid]});
-
-    print LIST "$PaperID[$paperid].$specode.mr.paper\n";
-    #print DATASET "$PMID[$paperid]\t$PaperID[$paperid].$specode.mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tdefault\n";
-    print DATASET "$PMID[$paperid]\t$PaperID[$paperid].$specode.mr.paper\t$gds\t$gpl\t$Chan_count[$paperid]\t$Title[$paperid]\t$Abstract[$paperid]\t$Cond_count[$paperid]\t$NumGene{$PaperID[$paperid]}\t$First_author[$paperid]\t$AllAuthors[$paperid]\t$Title[$paperid]\t$Journal[$paperid]\t$Year[$paperid]\t$Cond_description[$paperid]\tMethod: microarray\|Species: $speName{$specode}\n";
-    $paperid++;
+    $pclName = $pclDataset[$dataset_id];
+    print LIST "$pclName.paper\n";
+    print DATASET "$PMID{$paper}\t$pclName.paper\t$gds\t$gpl\t$Chan_count[$dataset_id]\t$Title{$paper}\t$Abstract{$paper}\t$Cond_count[$dataset_id]\t$NumGene[$dataset_id]\t$First_author{$paper}\t$AllAuthors{$paper}\t$Title{$paper}\t$Journal{$paper}\t$Year{$paper}\t$Cond_description[$dataset_id]\tMethod: microarray\|Species: $speName{$specode}$topicPaper{$paper}$tissuePaper{$paper}\n";
+    $dataset_id++;
 }
 close (DATASET);
 close (LIST);
@@ -369,10 +449,10 @@ print "done.\n";
 #--------------Subroutine PrintDataSet----------------------------
 
 sub PrintDataSet {
-	open (OUT, ">$paper.$specode.mr.paper") || die "can't open $paper.$specode.mr.paper!";
-	print "printing $paper.$specode.mr.paper ...";
+	open (OUT, ">$pclName.paper") || die "can't open $pclName.paper!";
+	print "printing $pclName.paper ...";
 	#print "$ExpPaper{$paper}\n";
-	@expList = split ("~", $ExpPaper{$paper});
+	#@expList = split ("~", $ExpPaper{$paper});
 	print OUT "name\tname\tGWEIGHT\t", join("\t", @expList), "\n";
 	print OUT "EWEIGHT\t\t";
 	for (my $i=0; $i<=$#expList; $i++) {
@@ -403,14 +483,14 @@ sub PrintDataSet {
 	    }
 	}
 	close (OUT);
-	print " $geneid genes printed done.\n";
+	print " $geneid genes printed.\n";
 }
 
 
 sub PrintDataSetCSV {
-	open (OUT, ">$paper.$specode.mr.csv") || die "can't open $paper.$specode.mr.csv!";
-	print "printing $paper.$specode.mr.csv ... \n";
-	@expList = split ("~", $ExpPaper{$paper});
+	open (OUT, ">$pclName.csv") || die "can't open $pclName.csv!";
+	print "printing $pclName.csv ... ";
+	#@expList = split ("~", $ExpPaper{$paper});
 	#print OUT "name\tname\tGWEIGHT\t", join("\t", @expList), "\n";
 	#print OUT "EWEIGHT\t\t";
 	print OUT "name\t", join("\t", @expList), "\n";
