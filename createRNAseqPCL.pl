@@ -45,15 +45,16 @@ while ($line = <ANAL>) {
 	#get analysis name
 	@tmp = split '"', $line;
 	$analysis = $tmp[1];
-    } elsif (($line =~ /^Database/) && ($line =~ /SRA/)) {
+    } elsif (($line =~ /^Database/) && ($line =~ /SRX/)) {
 	@tmp = split '"', $line;
 	$sra = $tmp[5];
 	$sraAnal{$sra} = $analysis;
-	print "$sra -- $analysis\n";
+	#print "$sra -- $analysis\n"; -- for script testing
     } elsif ($line =~ /^Reference/) {
 	@tmp = split '"', $line;
 	$paper = $tmp[1];
 	$sraPaper{$sra} = $paper;
+	#print "$sra -- $paper\n"; -- for script testing 
 	if ($paperRecord{$paper}) {
 	    #this paper is already in record, skip
 	    $totalCondPaper{$paper}++;
@@ -113,7 +114,7 @@ foreach $paper (@RNAseqPaper) {
 	open (IN2, "$file") || die "cannot open $!\n";	
 	%GeneExist = ();    
 	if ($sraAnal{$sra}) {
-	    print "parsing $file sample $sraAnal{$sra} in $paper ...";
+	    #print "parsing $file sample $sraAnal{$sra} in $paper ...";
 	} else {
 	    print "Cannot find analysis information for $sra!\n";
 	}
@@ -181,7 +182,7 @@ foreach $paper (@RNAseqPaper) {
 	    }
 	}
     
-	print "done.\n";
+	#print "done.\n";
 
 	close (IN2);
 	%GeneExprOne = ();
