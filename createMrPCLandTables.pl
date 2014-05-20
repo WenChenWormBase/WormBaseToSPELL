@@ -46,6 +46,7 @@ my $db = Ace->connect(-path => $acedbpath,  -program => $tace) || die print "Con
 my $query="query find Microarray_experiment; follow Reference";
 my @paperList=$db->find($query);
 my $TotalPaper = @paperList;
+my %mrPaperACeDB;
 
 my @expList; #list of experiments in each dataset
 my %Chan_count_exp; #for each experiment
@@ -65,6 +66,7 @@ my %topicPaper;
 my %tissuePaper;
 
 foreach my $paper (@paperList) {
+    $mrPaperACeDB{$paper} = 1; #this paper exist in WS as curated microarray paper.
 
     $tissuePaper{$paper} = ""; # preset all paper as not tissue specific, will update later.
 
@@ -222,7 +224,13 @@ print "Get dataset - paper reference ... \n";
 open (PROBEFILE, "mrFileList.txt") || die "can't open $!"; 
 while ($line=<PROBEFILE>) {
     chomp($line);
- 
+
+    #get paper id from file name
+    ($stuff[0], $stuff[1]) = split /WBPaper/, $line; #get everything after WBPaper
+    $stuff[1] = join "", "WBPaper", $stuff[1];
+    $paper = substr $stuff[1], 0, 15;
+    next unless ($mrPaperACeDB{$paper}); # skip this dataset if the experimental info is not in the current WS release. 
+
     #get species info from file name 
     if ($line =~ /MrData/) {
 	$specode = "ce";                
@@ -241,10 +249,6 @@ while ($line=<PROBEFILE>) {
     }
     $speDataset[$dataset_id] = $specode;
 
-    #get paper id from file name
-    ($stuff[0], $stuff[1]) = split /WBPaper/, $line; #get everything after WBPaper
-    $stuff[1] = join "", "WBPaper", $stuff[1];
-    $paper = substr $stuff[1], 0, 15;
 
     ($stuff[2], $stuff[3]) = split /Mr/, $stuff[1];
     $pclName = join '.', $stuff[2], $specode, "mr";
