@@ -4,7 +4,7 @@ cd /home/wen/WormBaseToSPELL/
 setenv ACEDB /home/citace/WS/acedb/
 ## from Wen
 /usr/local/bin/tace -tsuser 'wen' <<END_TACE
-QUERY FIND Condition Species = "Caenorhabditis elegans"; follow Analysis; Database = SRA;
+QUERY FIND Condition Species = "Caenorhabditis elegans"; follow Analysis; NOT Reference = *00041194; NOT Reference = *00041168; NOT Reference = *00035224; Database = SRA;
 show -a -f ace_files/WBceRNAseqAnalysis.ace
 QUERY FIND Condition Species = "Caenorhabditis briggsae"; follow Analysis; Database = SRA;
 show -a -f ace_files/WBcbgRNAseqAnalysis.ace
