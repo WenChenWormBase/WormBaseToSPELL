@@ -67,3 +67,11 @@ bin        c_briggsae  c_japonica  currentSPELL  OldPipeline  TilingArray
 All the scripts stored under bin/, all other folders can be made empty. 
 
 ----------------------------------------------------
+
+
+Other scripts:
+
+1. getSPELLusage.pl  -- get unique IPs from develpment.log files
+
+2. mapYK2Gene.pl - create links between yk cDNA clones and gene objects.
+
