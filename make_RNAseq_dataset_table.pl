@@ -86,13 +86,11 @@ foreach (@conditionList) {
 }
 
 
-$query="QUERY FIND Analysis Database = SRA; follow Sample; Species = \"$speName{$specode}\"; follow Reference";
+$query="QUERY FIND Analysis Database = SRA;  NOT Reference = *00041194; NOT Reference = *00041168; NOT Reference = *00035224; follow Sample; Species = \"$speName{$specode}\"; follow Reference";
 my @Papers=$db->find($query);
 
 print scalar @Papers, " RNAseq Papers found for $speName{$specode}.\n";
 #--------------Done query for microarray papers in WS ------
-
-
 
 
 #-------------------------------------------------------------------
