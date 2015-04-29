@@ -20,15 +20,13 @@ my %speName = ("cbg" => "Caenorhabditis briggsae",
 my $specode = $ARGV[0];
 
 if ($speName{$specode}) {
-    print "***** Prepare PCL files for RNAseq data for $speName{$specode} *****\n";    
+    print "***** Prepare dataset table for RNAseq data for $speName{$specode} *****\n";    
 } else {
     die "Species code $specode is not recognized.\n";
 }
 
 open (DATASET, ">dataset_table_RNAseq.txt") || die "can't open $!";
 open (LIST, ">dataset_list_RNAseq.txt") || die "can't open $!";
-
-my $id = 0;
 
 my @tmp;
 my ($FirstName, $Total_datasets, $Author_count, $Abs, $ChannelCount, $line, $database, $numGene);
@@ -89,19 +87,40 @@ foreach (@conditionList) {
 $query="QUERY FIND Analysis Database = SRA;  NOT Reference = *00041194; NOT Reference = *00041168; NOT Reference = *00035224; follow Sample; Species = \"$speName{$specode}\"; follow Reference";
 my @Papers=$db->find($query);
 
-print scalar @Papers, " RNAseq Papers found for $speName{$specode}.\n";
+print scalar @Papers, " RNAseq Papers found for $speName{$specode} in ACeDB.\n";
 #--------------Done query for microarray papers in WS ------
 
 
+my $id = -1;
+
 #-------------------------------------------------------------------
+my $empty = 0;
 foreach $paper (@Papers) {
+    
+    #----------- first figure out if this is an empty dataset -----------
+    $empty = 0; #suppose this dataset is not empty.
+
+    open (COND, "$paper.$specode.rs.cond")  || die "cannot open $paper.$specode.rs.cond\n";
+    while ($line = <COND>) {
+	chomp ($line);
+	if ($line eq "EMPTY DATASET!") {
+	    $empty = 1;
+	}
+	next unless ($empty==0); #suppose this is not an empty dataset
+
+	$id++;
+	($numGene, $Cond_count[$id], $Cond_description[$id]) = split /\t/, $line;
+    }
+    close (COND);
+    
+    next unless ($empty==0); #suppose this is not an empty dataset
+
     if ($tissuePaper{$paper}) {
 	#do nothing
     } else {
 	$tissuePaper{$paper} = "";
     }
 
-    $id++;
     $PaperID[$id] = $paper;
 
     if ($paper->Database) {
@@ -170,13 +189,6 @@ foreach $paper (@Papers) {
     }
     #---- done -----------
 
-    open (COND, "$paper.$specode.rs.cond")  || die "cannot open $!\n";
-    while ($line = <COND>) {
-	chomp ($line);
-	($numGene, $Cond_count[$id], $Cond_description[$id]) = split /\t/, $line;
-    }
-    close (COND);
-
     $ChannelCount = 1;
 
 
@@ -199,7 +211,7 @@ foreach $paper (@Papers) {
 
 #-----------------------------------------------------------
 
-$Total_datasets = $id;
+$Total_datasets = $id + 1;
 
 close (IN);
 close (DATASET);
