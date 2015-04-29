@@ -93,15 +93,9 @@ foreach $paper (@RNAseqPaper) {
     %DataLineCSV = ();
     %GeneExist = ();
     @GeneList = ();
+    @exp = ();
     print "$totalCondPaper{$paper} sample found in $paper in WormBase.\n";
-    open (OUT, ">$paper.$specode.rs.paper")  || die "cannot open $!\n";
-    open (CSV, ">$paper.$specode.rs.csv")  || die "cannot open $!\n";
-    open (COND, ">$paper.$specode.rs.cond")  || die "cannot open $!\n";
-
-    #print OUT "name\tname\tGWEIGHT\t", join("\t", @inputfile), "\n";
-    print OUT "name\tname\tGWEIGHT";
-    print CSV "name";
-
+ 
     #update mr_data table
     my $file;
     $i = 0;
@@ -122,8 +116,6 @@ foreach $paper (@RNAseqPaper) {
 	next unless ($sraAnal{$sra});
 
 	$exp[$i] = $sraAnal{$sra};      
-	print OUT "\t$exp[$i]";
-	print CSV "\t$exp[$i]";
 	
 	if ($i == 0) {
 	    $CondDesc = $exp[$i];
@@ -191,20 +183,38 @@ foreach $paper (@RNAseqPaper) {
     }
 
     $totalCond = $i;
-    print "$i sample files found for $paper. WS contains $totalCondPaper{$paper} experiments for $paper.\n";
+    print "$i RNAseq data files found for $paper. WS contains $totalCondPaper{$paper} experiments for $paper.\n";
+
+
+    if ($totalCond == 0) {
+	print "Skip paper $paper because no RNAseq data file was found.\n";
+	open (COND, ">$paper.$specode.rs.cond")  || die "cannot open $!\n";
+	$numGene = @GeneList;
+	print COND "EMPTY DATASET!\n";
+	close (COND);
+    }
+
+    next unless ($totalCond != 0);
     #print out condition file
-    $numGene = @GeneList;
-    print COND "$numGene\t$i\t$CondDesc\n";
+    open (OUT, ">$paper.$specode.rs.paper")  || die "cannot open $!\n";
+    open (CSV, ">$paper.$specode.rs.csv")  || die "cannot open $!\n";
+ 
+    #print OUT "name\tname\tGWEIGHT\t", join("\t", @inputfile), "\n";
+    print OUT "name\tname\tGWEIGHT";
+    print CSV "name";
+    foreach (@exp) {
+	print OUT "\t$_";
+	print CSV "\t$_";
+    }
 
     print OUT "\nEWEIGHT\t\t";
     for ($i=0; $i<$totalCond; $i++) {
 	print OUT "\t1";
     }
     print OUT "\n";
-
     print CSV "\n";
 
-    #print out the PCL file
+    #print the PCL file
     foreach $gene (@GeneList) {
 	#print "$gene\n";
 	print OUT "$GeneExprAll{$gene}\n";
@@ -213,6 +223,10 @@ foreach $paper (@RNAseqPaper) {
 
     close (OUT);
     close (CSV);
+
+    open (COND, ">$paper.$specode.rs.cond")  || die "cannot open $!\n";
+    $numGene = @GeneList;
+    print COND "$numGene\t$i\t$CondDesc\n";
     close (COND);
 
 }
