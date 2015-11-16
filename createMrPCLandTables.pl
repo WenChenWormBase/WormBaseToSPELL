@@ -138,14 +138,14 @@ foreach my $paper (@paperList) {
     }
 
     #get topic information
-    if ($paper->WBProcess) {
-	@topic = $paper->WBProcess;
-	$topicPaper{$paper} = "";
+    @topic = ();
+    if ($paper->GO_term){
+	@topic = $paper->GO_term;
 	foreach (@topic) {
-	    $topicName = $_->Public_name;
+	    $topicName = $_->Name;
 	    $topicName = "Topic: $topicName";
 	    $topicPaper{$paper} = "$topicPaper{$paper}\|$topicName";
-	}
+	}	    
     } else {
 	$topicPaper{$paper} = "";
     }
@@ -153,7 +153,7 @@ foreach my $paper (@paperList) {
 }
 
 #get tissue information
-$query="query find Condition Tissue = *";
+$query="query find Condition Tissue = *; !Tissue = *0007833";
 my @conditionList=$db->find($query);
 foreach (@conditionList) {
     if ($_->Reference) {
