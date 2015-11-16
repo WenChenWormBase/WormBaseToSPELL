@@ -72,7 +72,7 @@ my %topicPaper;
 my %tissuePaper;
 
 #get tissue information
-my $query="query find Condition Tissue = *";
+my $query="query find Condition Tissue = *; !Tissue = *0007833";
 my @conditionList=$db->find($query);
 foreach (@conditionList) {
     if ($_->Reference) {
@@ -146,11 +146,11 @@ foreach my $paper (@Papers) {
 
 
     #get topic information
-    if ($paper->WBProcess) {
-	@topic = $paper->WBProcess;
-	$topicPaper{$paper} = "";
+    @topic = ();
+    if ($paper->GO_term){
+	@topic = $paper->GO_term;
 	foreach (@topic) {
-	    $topicName = $_->Public_name;
+	    $topicName = $_->Name;
 	    $topicName = "Topic: $topicName";
 	    $topicPaper{$paper} = "$topicPaper{$paper}\|$topicName";
 	}
