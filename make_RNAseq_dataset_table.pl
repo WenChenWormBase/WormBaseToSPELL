@@ -16,7 +16,10 @@ my %speName = ("cbg" => "Caenorhabditis briggsae",
 	       "cja" => "Caenorhabditis japonica",
 	       "cre" => "Caenorhabditis remanei",
 	       "ce" => "Caenorhabditis elegans",
-	       "ppa" => "Pristionchus pacificus");
+	       "ppa" => "Pristionchus pacificus",	      
+	       "bma" => "Brugia malayi", 
+	       "ovo" => "Onchocerca volvulus", 
+	       "sra" => "Strongyloides ratti");
 my $specode = $ARGV[0];
 
 if ($speName{$specode}) {
