@@ -16,6 +16,12 @@ QUERY FIND Condition Species = "Caenorhabditis remanei"; follow Analysis; Databa
 show -a -f ace_files/WBcreRNAseqAnalysis.ace
 QUERY FIND Condition Species = "Pristionchus pacificus"; follow Analysis; Database = SRA;
 show -a -f ace_files/WBppaRNAseqAnalysis.ace
+QUERY FIND Condition Species = "Brugia malayi"; follow Analysis; Database = SRA;
+show -a -f ace_files/WBbmaRNAseqAnalysis.ace
+QUERY FIND Condition Species = "Onchocerca volvulus"; follow Analysis; Database = SRA;
+show -a -f ace_files/WBovoRNAseqAnalysis.ace
+QUERY FIND Condition Species = "Strongyloides ratti"; follow Analysis; Database = SRA;
+show -a -f ace_files/WBsraRNAseqAnalysis.ace
 QUERY FIND Condition TAR*;
 show -a -t Reference -f ace_files/WBCeTARSample.ace
 QUERY FIND Gene
