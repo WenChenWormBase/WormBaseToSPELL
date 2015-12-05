@@ -12,7 +12,10 @@ my %speName = ("cbg" => "Caenorhabditis briggsae",
 	       "cja" => "Caenorhabditis japonica",
 	       "cre" => "Caenorhabditis remanei",
 	       "ce" => "Caenorhabditis elegans",
-	       "ppa" => "Pristionchus pacificus");
+	       "ppa" => "Pristionchus pacificus",
+	       "bma" => "Brugia malayi", 
+	       "ovo" => "Onchocerca volvulus", 
+	       "sra" => "Strongyloides ratti");
 
 if ($speName{$specode}) {
     print "***** Prepare PCL files for RNAseq data for $speName{$specode} *****\n";    
@@ -45,7 +48,7 @@ while ($line = <ANAL>) {
 	#get analysis name
 	@tmp = split '"', $line;
 	$analysis = $tmp[1];
-    } elsif (($line =~ /^Database/) && ($line =~ /SRX/)) {
+    } elsif ((($line =~ /^Database/) && ($line =~ /SRX/))||(($line =~ /^Database/) && ($line =~ /ERX/))){
 	@tmp = split '"', $line;
 	$sra = $tmp[5];
 	$sraAnal{$sra} = $analysis;
@@ -67,7 +70,7 @@ while ($line = <ANAL>) {
     }	
 }
 close (ANAL);
-print "$totalRNAseqPaper RNAseq papers found in WS.\n";
+print "$totalRNAseqPaper RNAseq papers found in ACeDB.\n";
 
 
 #get the name of all input expr level files
@@ -230,4 +233,3 @@ foreach $paper (@RNAseqPaper) {
     close (COND);
 
 }
-
