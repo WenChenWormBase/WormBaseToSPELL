@@ -31,6 +31,7 @@ mv systematic_to_common.txt /home/wen/SPELL/TablesForSPELL/.
 #This will create *.paper, *.csv files, as well as dataset_list_...txt and dataset_table_....txt files for microarray and RNAseq datasets.
 cd /home/wen/WormBaseToSPELL/c_elegans/
 /home/wen/WormBaseToSPELL/bin/createMrPCLandTables.pl
+/home/wen/WormBaseToSPELL/bin/createMassSpecPCLandTables.pl
 /home/wen/WormBaseToSPELL/bin/createRNAseqPCL.pl ce
 /home/wen/WormBaseToSPELL/bin/make_RNAseq_dataset_table.pl ce
 
@@ -76,7 +77,12 @@ cd /home/wen/WormBaseToSPELL/TilingArray/
 mv /home/wen/WormBaseToSPELL/TilingArray/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
 mv /home/wen/WormBaseToSPELL/TilingArray/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
 mv /home/wen/WormBaseToSPELL/*_*/*.paper /home/wen/SPELL/TablesForSPELL/noempty/.
-mv /home/wen/WormBaseToSPELL/*_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+#mv /home/wen/WormBaseToSPELL/*_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+mv /home/wen/WormBaseToSPELL/b_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+mv /home/wen/WormBaseToSPELL/c_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+mv /home/wen/WormBaseToSPELL/o_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+mv /home/wen/WormBaseToSPELL/p_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
+mv /home/wen/WormBaseToSPELL/s_*/*.csv /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/.
 cd /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/
 tar -zcvf AllDatasetsDownload.tgz *.csv
 
@@ -122,8 +128,9 @@ rm alias_to_systematic.csv
 /home/wen/Tables/bin/makeGeneExprClusTable.pl
 /home/wen/Tables/bin/makeMrExpTable.pl
 /home/wen/Tables/bin/makeRNAiPhenoTable.pl
+/home/wen/Tables/bin/dumpAceFiles.sh
+/home/wen/Tables/bin/makeGeneNameTable_from_file.pl
 #fragmine Tables
-#---- /home/wen/fragmine/makeGeneNameTable_from_file.pl
 #---- /home/wen/fragmine/makeRNAiAllelePheno.pl
 #---- /home/wen/fragmine/makeGeneTissueLifeStage.pl
 #After these are done. Copy all the files to canopus ftp site. 
