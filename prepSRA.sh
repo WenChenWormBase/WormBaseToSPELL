@@ -2,8 +2,11 @@
 #----------prepare RNAseq expression files for PCL generation ---------
 #------------ all species for microarray are in c_elegans folder ----
 cd /home/wen/WormBaseToSPELL/c_elegans/
-#ls /home/wen/LargeDataSets/Microarray/NewDataForWS/*/*/*Mr*.txt /home/wen/LargeDataSets/Microarray/MrDataFromACeDB/OldDafaForWS/*MrData.txt  /home/wen/LargeDataSets/Microarray/MrDataFromACeDB/ReAnnotate/*/*MrData.txt  > mrFileList.txt
+#collect microarray data files
 ls /home/wen/LargeDataSets/Microarray/NewDataForWS/*/*/*Mr*.txt /home/wen/LargeDataSets/Microarray/MrDataFromACeDB/OldDafaForWS/*MrData.txt > mrFileList.txt
+#collect proteomics data files
+ls /home/wen/LargeDataSets/MassSpec/NewMSforWS/*/*MS*.txt > msFileList.txt
+#collect RNAseq data files
 rm *SRA_gene_expression.tar
 rm SRX*.out
 cp /home/citace/WS/species/c_elegans/PRJNA*/annotation/c_elegans.PRJNA*.WS*.SRA_gene_expression.tar.gz .
