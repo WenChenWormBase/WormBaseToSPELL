@@ -13,19 +13,19 @@ my @stuff;
 
 my ($i, $TotalColumns, $paper, $gds, $gpl, $hypGDS, $hypGPL, $expName, $hypEXPforDesc, $file);
 my $c = 0;
+my $clusteringDS = 0;
 
 #----------- give IDs to datasets --------------------------------
-open (IN1, "noid_dataset_list.txt") || die "can't open $!";
+#open (IN1, "noid_dataset_list.txt") || die "can't open $!";
 open (LIST, ">dataset_list.txt") || die "can't open $!";
-$id = 0;
-while ($line = <IN1>) {
-    $id++;
-    chomp($line);
-    print LIST "$id\t$line\n";
-}
-print "$id datasets found in the dataset list.\n";
-close (IN1);
-close (LIST);
+#$id = 0;
+#while ($line = <IN1>) {
+#    $id++;
+#    chomp($line);
+#    print LIST "$id\t$line\n";
+#}
+#print "$id datasets found in the dataset list.\n";
+#close (IN1);
 
 
 open (IN2, "noid_dataset_table.txt") || die "can't open $!";
@@ -60,6 +60,9 @@ while ($line = <IN3>) {
     } elsif ($filename =~ /.tr.paper/) { 
 	#Tiling Array
 	$title = "\<font color \= \"yellow\">$title\<\/font\>";	
+    } elsif ($filename =~ /.ms.paper/) { 
+	#Proteomics
+	$title = "\<font color \= \"purple\">$title\<\/font\>";	
     }
 
     #add information to short description 
@@ -110,7 +113,7 @@ while ($line = <IN3>) {
 	    #This is Microarray
 #	    $hypEXP[$i] = "\<a href\=\"http\:\/\/www.wormbase.org\/db\/microarray\/results\?name\=$expName\;class\=Microarray_experiment\" target=\"_blank\"\>$_\<\/a\>";
 	    $hypEXP[$i] = "\<a href\=\"http\:\/\/www.wormbase.org\/tools\/tree\/run\?name=$expName;class\=Microarray_experiment\" target=\"_blank\"\>$_\<\/a\>";
-	} elsif (($filename =~ /.rs.paper/)||($filename =~ /.tr.paper/)){
+	} elsif (($filename =~ /.rs.paper/)||($filename =~ /.tr.paper/)||($filename =~ /.ms.paper/)){
 	    #This is RNAseq or tiling array
 #	    $hypEXP[$i] = "\<a href\=\"http\:\/\/www.wormbase.org\/db\/misc\/analysis\?name\=$expName\;class\=Analysis\" target=\"_blank\"\>$_\<\/a\>";
 	    $hypEXP[$i] = "\<a href\=\"http\:\/\/www.wormbase.org\/tools\/tree\/run\?name\=$expName\;class=Analysis\" target=\"_blank\"\>$_\<\/a\>";
@@ -127,7 +130,14 @@ while ($line = <IN3>) {
     #done.
 
     print DATASET "$id\t$pubmedID\t$filename\t$geoID\t$platformID\t$channelCount\t$name\t$description\t$num_conds\t$num_genes\t$author\t$all_authors\t$title\t$journal\t$pub_year\t$cond_descs\t$tags\n";
+    if ($num_conds > 2) {
+	$clusteringDS++;
+	print LIST "$id\t$filename\n"; #only list datasets with at least three experiments for SPELL clustering
+    }
     
 }
+
+print "$clusteringDS datasets (with at least 3 experiments) listed for clustering.\n";
 close (IN3);
 close (DATASET);
+close (LIST);
