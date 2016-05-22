@@ -90,14 +90,14 @@ tar -zcvf AllDatasetsDownload.tgz *.csv
 cd /home/wen/WormBaseToSPELL/currentSPELL/
 cat /home/wen/WormBaseToSPELL/*_*/dataset_list*.txt   /home/wen/WormBaseToSPELL/TilingArray/dataset_list_TAR.txt  > noid_dataset_list.txt
 cat /home/wen/WormBaseToSPELL/*_*/dataset_table*.txt  /home/wen/WormBaseToSPELL/TilingArray/dataset_table_TAR.txt  > noid_dataset_table.txt
-/home/wen/WormBaseToSPELL/bin/enrich_dataset_table.pl.removeSmallDatasets
+/home/wen/WormBaseToSPELL/bin/enrich_dataset_table.pl
 mv dataset_list.txt /home/wen/SPELL/TablesForSPELL/.
 mv dataset_table.txt /home/wen/SPELL/TablesForSPELL/.
 mv dataset_table_enriched.txt /home/wen/SPELL/TablesForSPELL/.
 
 #Make expression table. This step need to be done in Textpresso machine with lots of memory. change -Xmx2g to  -Xmx4g  so that more memory is allocated to the script.
 #--- cd /home/wen/SPELL/SpellUpdate/bin/
-#--- java -Xmx16g -jar create_expression_table.jar /home/wen/SPELL/SpellUpdate/spell_web/config/config.txt > /home/wen/SPELL/TablesForSPELL/expressionTable.txt
+#--- java -Xmx24g -jar create_expression_table.jar /home/wen/SPELL/SpellUpdate/spell_web/config/config.txt > /home/wen/SPELL/TablesForSPELL/expressionTable.txt
 
 #--------------------------------------------------------------------------
 
@@ -127,10 +127,21 @@ rm alias_to_systematic.csv
 /home/wen/Tables/bin/makeTissueGeneTable.pl
 /home/wen/Tables/bin/makeGeneExprClusTable.pl
 /home/wen/Tables/bin/makeMrExpTable.pl
-/home/wen/Tables/bin/makeRNAiPhenoTable.pl
-/home/wen/Tables/bin/dumpAceFiles.sh
-/home/wen/Tables/bin/makeGeneNameTable_from_file.pl
-#fragmine Tables
-#---- /home/wen/fragmine/makeRNAiAllelePheno.pl
-#---- /home/wen/fragmine/makeGeneTissueLifeStage.pl
+#simpleMine Tables
+cd /home/wen/simpleMine/
+mkdir sourceFile/
+cd sourceFile/
+/home/wen/simpleMine/makeRNAiAllelePheno.pl
+/home/wen/simpleMine/makeGeneTissueLifeStage.pl
+mv /home/wen/WormBaseToSPELL/currentSPELL/WBGeneName.csv .
+#Automated description tables
+cd /home/wen/AutoDescription/
+mkdir result/
+cd result/
+/home/wen/AutoDescription/forRanjana/dumpAutoDesAceFiles.sh
+/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl ce
+/home/wen/AutoDescription/forRanjana/getECsummaryRegGene_forRanjana.pl ce
+/home/wen/AutoDescription/forRanjana/getECsummaryRegMol_forRanjana.pl ce
+/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl bma
+/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl ppa
 #After these are done. Copy all the files to canopus ftp site. 
