@@ -24,8 +24,8 @@ QUERY FIND Condition Species = "Strongyloides ratti"; follow Analysis; Database 
 show -a -f ace_files/WBsraRNAseqAnalysis.ace
 QUERY FIND Condition TAR*;
 show -a -t Reference -f ace_files/WBCeTARSample.ace
-QUERY FIND Gene
-show -a -t Name -f ace_files/WBGeneName.ace
+QUERY FIND Gene WBGene*
+show -a -t Identity -f ace_files/WBGeneIdentity.ace
 show -a -t Species -f ace_files/WBGeneSpe.ace
 QUERY FIND Gene Microarray_results
 show -a -t Microarray_results -f ace_files/WBGeneMr.ace
