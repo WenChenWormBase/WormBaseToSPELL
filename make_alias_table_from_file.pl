@@ -8,19 +8,20 @@ print "Output file: alias_to_systematic.txt, gene_list.txt, systematic_to_common
 
 print "Parse Gene names ...";
 open (IN, "/home/wen/WormBaseToSPELL/ace_files/WBGeneIdentity.ace") || die "can't open WBGeneIdentity.ace!";
+#open (IN, "/home/wen/WormBaseToSPELL/ace_files/test.ace") || die "can't open test.ace!";
 
 open (ALIAS, ">alias_to_systematic.txt") || die "can't open alias_to_systematic.txt!";
 open (GENES, ">gene_list.txt") || die "can't open gene_list.txt!";
 open (COMMON, ">systematic_to_common.txt") || die "can't open systematic_to_common.txt!";
 open (OUT, ">WBGeneName.csv") || die "cannot open WBGeneName.csv!\n";
 
-print OUT "Gene\tPublic Name\tStatus\tSequence Name\tUniprot\tTreeFam\tRefSeq_mRNA\tRefSeq_protein\n";
-my ($line, $g, $pub_name, $status, $seq_name, $uniprot, $treefam, $refSeqRNA, $refSeqProtein, $other_name, $mol_name);
+print OUT "Gene\tPublic Name\tStatus\tSequence Name\tWormPep\tUniprot\tTreeFam\tRefSeq_mRNA\tRefSeq_protein\n";
+my ($line, $g, $pub_name, $merged_into, $status, $seq_name, $wormpep, $uniprot, $treefam, $refSeqRNA, $refSeqProtein, $other_name, $mol_name);
 my @tmp;
 my %otherName;
 my %pubName;
 my @otherNameList;
-#my %idGene;
+my ($w0, $w1); #for wormpep
 
 $id = 0;
 $id_a = 0;
@@ -35,18 +36,28 @@ while ($line =<IN>) {
 	$g = $tmp[1];
 	$pub_name = "N.A.";
 	$seq_name = "N.A.";
+	$wormpep  = "N.A.";
 	$uniprot = "N.A.";
 	$treefam = "N.A.";
 	$refSeqRNA = "N.A.";
 	$refSeqProtein = "N.A.";
+	$status = "N.A.";
+	$merged_into = "N.A.";
 
 	$id++;
 	print GENES "$id\t$g\n";
 	$idGene{$g} = $id;
     } elsif ($line =~ /^Live/) {
 	$status = "Live";
-    } elsif ($line =~ /^Dead/) {
-	$status = "Dead";
+    } elsif ($line =~ /^Dead/) {	
+	if ($merged_into ne "N.A.") {
+	    $status = "Dead, merged into $merged_into";
+	} else {
+	    $status = "Dead";
+	}
+    } elsif ($line =~ /^Merged_into/) {
+	@tmp = split '"', $line;
+	$merged_into = $tmp[1];
     } elsif ($line =~ /^Sequence_name/) {
 	@tmp = split '"', $line;
 	$seq_name = $tmp[1];
@@ -57,6 +68,17 @@ while ($line =<IN>) {
     } elsif ($line =~ /^Molecular_name/) {
 	@tmp = split '"', $line;
 	$mol_name = $tmp[1];
+
+	if ($mol_name =~ /^WP/) {
+	    ($w0, $w1) = split ":", $mol_name;
+		
+	    if ($wormpep eq "N.A.") {
+		$wormpep = $w1;
+	    } else {
+		$wormpep = join ",",  $wormpep, $w1;
+	    }
+
+	}
 
 	$id_a++;
 	print ALIAS "$id_a\t$mol_name\t$g\n";
@@ -118,7 +140,7 @@ while ($line =<IN>) {
 	    $refSeqProtein = join ",",  $refSeqProtein, $tmp[5];
 	}
     } elsif  ($line eq "") {
-	print OUT "$g\t$pub_name\t$status\t$seq_name\t$uniprot\t$treefam\t$refSeqRNA\t$refSeqProtein\n";
+	print OUT "$g\t$pub_name\t$status\t$seq_name\t$wormpep\t$uniprot\t$treefam\t$refSeqRNA\t$refSeqProtein\n";
     }
 }
 
