@@ -220,7 +220,21 @@ foreach $paper (@RNAseqPaper) {
     #print the PCL file
     foreach $gene (@GeneList) {
 	#print "$gene\n";
-	print OUT "$GeneExprAll{$gene}\n";
+	my $validEntry = 0;
+	my @valueList = split /\t/, $GeneExprAll{$gene};
+	my $totalCol = @valueList;
+	my $v = 3;
+	while ($v < $totalCol) {
+	    if ($valueList[$v] =~ /-33.2192809488736/) {
+		#do nothing		
+	    } else {
+		$validEntry = 1;
+	    }
+	    $v++;
+	}
+	if ($validEntry == 1) {
+	    print OUT "$GeneExprAll{$gene}\n";
+	}
 	print CSV "$DataLineCSV{$gene}\n";
     }
 
