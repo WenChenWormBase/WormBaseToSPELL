@@ -9,11 +9,42 @@ my @tmp;
 my @exp;
 my @hypEXP;
 my @stuff;
+my %tagPaper;
 #my @fileList = ("/home/wen/WormBaseToSPELL/Microarray/dataset_table_mr.txt", "/home/wen/WormBaseToSPELL/RNAseq/dataset_table_RNAseq.txt", "/home/wen/WormBaseToSPELL/TilingArray/dataset_table_TAR.txt");
 
 my ($i, $TotalColumns, $paper, $gds, $gpl, $hypGDS, $hypGPL, $expName, $hypEXPforDesc, $file);
 my $c = 0;
 my $clusteringDS = 0;
+my ($GO_name, $GO_term);
+
+#-------------------------------------------------------
+open (IN1, "/home/wen/WormBaseToSPELL/bin/SPELLDataSet_Topics_annotation.csv") || die "can't open SPELLDataSet_Topics_annotation.csv!";
+while ($line = <IN1>) {
+    chomp($line);
+    @tmp = ();
+    @tmp = split /\t/, $line;
+    
+    next unless ($tmp[1] ne "");
+    
+    $tags = $tmp[1];
+    $filename = $tmp[0]; 
+    @stuff = ();
+    @stuff = split ", ", $tmp[1];
+    
+    foreach (@stuff) {
+	if ($_ =~ /^Tissue/) {
+	    #do nothing         
+	} elsif ($_ =~ /GO:/) {
+	    ($GO_name, $GO_term) = split / \| /, $_;
+	    $_ = join "", "Topic: ", $GO_name;
+	} else {
+	    $_ = join "", "Topic: ", $_;
+	}
+    }
+    $tags = join "\|", @stuff;
+    $tagPaper{$filename} = $tags;    
+}
+close (IN1);
 
 #----------- give IDs to datasets --------------------------------
 #open (IN1, "noid_dataset_list.txt") || die "can't open $!";
@@ -48,6 +79,19 @@ my ($pType, $csvFileName);
 while ($line = <IN3>) {
     chomp ($line);
     ($id, $pubmedID, $filename, $geoID, $platformID, $channelCount, $name, $description, $num_conds, $num_genes, $author, $all_authors, $title, $journal, $pub_year, $cond_descs, $tags) = split /\t/, $line;
+
+    #---- replace tags ----------
+    @stuff = ();
+    @stuff = split /\|/, $tags;
+
+    if ($tagPaper{$filename}){
+	$tags = join "|", $stuff[0], $stuff[1], $tagPaper{$filename};
+    } else {
+	$tags = join "|", $stuff[0], $stuff[1];
+    }    
+    #---- done replace tags ---------
+    
+    
     @tmp = split /\./, $filename;
     $paper = $tmp[0];
 
