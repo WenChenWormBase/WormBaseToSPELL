@@ -45,7 +45,7 @@ Create dataset_list_TAR.txt and dataset_table_TAR.txt files for tiling array dat
 
 11. enrich_dataset_table.pl
 
-Merge all the dataset_list*.txt and dataset_table*.txt files from different species and data types, create the final version of dataset_list.txt, dataset_table.txt and dataset_table_enriched.txt files for SPELL database. dataset_table_enriched.txt has HTML links embedded in the entries. This is the file that will be read into SPELL database.  
+Merge all the dataset_list*.txt and dataset_table*.txt files from different species and data types, create the final version of dataset_list.txt, dataset_table.txt and dataset_table_enriched.txt files for SPELL database. dataset_table_enriched.txt has HTML links embedded in the entries. This is the file that will be read into SPELL database. This script uses SPELLDataSet_Topics_annotation.csv to include annotated dataset topic tags. 
 
 12. update_spell_dev_dbi.pl
 
