@@ -19,6 +19,9 @@ my ($GO_name, $GO_term);
 
 #-------------------------------------------------------
 open (IN1, "/home/wen/WormBaseToSPELL/bin/SPELLDataSet_Topics_annotation.csv") || die "can't open SPELLDataSet_Topics_annotation.csv!";
+open (TOP, ">topicList.csv") || die "can't open topicList.csv!";
+my %printTopic;
+
 while ($line = <IN1>) {
     chomp($line);
     @tmp = ();
@@ -32,6 +35,14 @@ while ($line = <IN1>) {
     @stuff = split ", ", $tmp[1];
     
     foreach (@stuff) {
+
+	if ($printTopic{$_}) {
+	    #do nothing
+	} else{
+	    print TOP "$_\n";
+	    $printTopic{$_} = 1;
+	}
+
 	if ($_ =~ /^Tissue/) {
 	    #do nothing         
 	} elsif ($_ =~ /GO:/) {
@@ -40,6 +51,7 @@ while ($line = <IN1>) {
 	} else {
 	    $_ = join "", "Topic: ", $_;
 	}
+
     }
     $tags = join "\|", @stuff;
     $tagPaper{$filename} = $tags;    
@@ -73,8 +85,10 @@ close (TABLE);
 
 
 #----------- enrich dataset table  -----------
-open (IN3, "dataset_table.txt") || die "can't open $!";
-open (DATASET, ">dataset_table_enriched.txt") || die "can't open $!";
+open (IN3, "dataset_table.txt") || die "can't locate dataset_table.txt!";
+open (DATASET, ">dataset_table_enriched.txt") || die "can't start dataset_table_enriched.txt!";
+open (NEW, ">newDataset.csv") || die "can't start newDataset.csv!";
+
 my ($pType, $csvFileName);
 while ($line = <IN3>) {
     chomp ($line);
@@ -87,8 +101,9 @@ while ($line = <IN3>) {
     if ($tagPaper{$filename}){
 	$tags = join "|", $stuff[0], $stuff[1], $tagPaper{$filename};
     } else {
+	print NEW "$filename\t$title\n";
 	$tags = join "|", $stuff[0], $stuff[1];
-    }    
+    } 
     #---- done replace tags ---------
     
     
