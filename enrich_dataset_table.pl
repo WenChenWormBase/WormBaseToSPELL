@@ -199,4 +199,5 @@ while ($line = <IN3>) {
 print "$clusteringDS datasets (with at least 3 experiments) listed for clustering.\n";
 close (IN3);
 close (DATASET);
+close (NEW);
 close (LIST);

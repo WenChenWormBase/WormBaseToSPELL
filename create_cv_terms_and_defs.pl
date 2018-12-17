@@ -31,7 +31,7 @@ my ($line, $go, $def, $topic);
 my @tmp;
 
 
-open (CV, ">add_CV_link.rhtml.test") || die "can't open add_CV_link.rhtml.test!";
+open (CV, ">add_CV_link.rhtml") || die "can't open add_CV_link.rhtml!";
 
 open (GO, "/home/citace/WS/ONTOLOGY/gene_ontology.WS268.obo") || die "can't opengene_ontology.WS268.obo!";
 while ($line = <GO>) {
@@ -78,7 +78,9 @@ while ($line = <IN>) {
 
 }
 
-
+close (CV);
+close (GO);
+close (IN);
 
 
 
