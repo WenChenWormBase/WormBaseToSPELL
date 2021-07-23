@@ -96,8 +96,8 @@ mv dataset_table.txt /home/wen/SPELL/TablesForSPELL/.
 mv dataset_table_enriched.txt /home/wen/SPELL/TablesForSPELL/.
 
 #Make expression table. This step need to be done in Textpresso machine with lots of memory. change -Xmx2g to  -Xmx4g  so that more memory is allocated to the script.
-#--- cd /home/wen/SPELL/SpellUpdate/bin/
-#--- java -Xmx24g -jar create_expression_table.jar /home/wen/SPELL/SpellUpdate/spell_web/config/config.txt > /home/wen/SPELL/TablesForSPELL/expressionTable.txt
+cd /home/wen/SPELL/SpellUpdate/bin/
+java -Xmx24g -jar create_expression_table.jar /home/wen/SPELL/SpellUpdate/spell_web/config/config.txt > /home/wen/SPELL/TablesForSPELL/expressionTable.txt
 
 #--------------------------------------------------------------------------
 
@@ -116,6 +116,12 @@ chmod a+x addTitle_MrProbeFiles.sh
 tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/MrDataProbeCentric.tgz  *.csv
 #SPELL mySQL tables
 tar -zcvf /home/wen/WormBaseToSPELL/currentSPELL/download/datasets/SPELLmySQL.tgz /home/wen/SPELL/TablesForSPELL/dataset_list.txt /home/wen/SPELL/TablesForSPELL/dataset_table.txt /home/wen/SPELL/TablesForSPELL/expressionTable.txt /home/wen/SPELL/TablesForSPELL/gene_list.txt /home/wen/SPELL/TablesForSPELL/systematic_to_common.txt  /home/wen/SPELL/SpellUpdate/spell_web/db/create.sql
+#modENCODE table
+cd /home/wen/Tables/modENCODE/
+./dump_WS_ace4table.sh
+./makeENCODE_FPKM.pl
+tar -zcvf modENCODE_FPKM.tgz modENCODE_FPKM.csv
+mv modENCODE_FPKM.tgz /home/wen/WormBaseToSPELL/currentSPELL/download/tables/.
 #Gene Alias Table
 cd /home/wen/WormBaseToSPELL/currentSPELL/download/tables/
 cp /home/wen/SPELL/TablesForSPELL/alias_to_systematic.txt alias_to_systematic.csv
@@ -127,21 +133,4 @@ rm alias_to_systematic.csv
 /home/wen/Tables/bin/makeTissueGeneTable.pl
 /home/wen/Tables/bin/makeGeneExprClusTable.pl
 /home/wen/Tables/bin/makeMrExpTable.pl
-#simpleMine Tables
-cd /home/wen/simpleMine/
-mkdir sourceFile/
-cd sourceFile/
-/home/wen/simpleMine/makeRNAiAllelePheno.pl
-/home/wen/simpleMine/makeGeneTissueLifeStage.pl
-mv /home/wen/WormBaseToSPELL/currentSPELL/WBGeneName.csv .
-#Automated description tables
-cd /home/wen/AutoDescription/
-mkdir result/
-cd result/
-/home/wen/AutoDescription/forRanjana/dumpAutoDesAceFiles.sh
-/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl ce
-/home/wen/AutoDescription/forRanjana/getECsummaryRegGene_forRanjana.pl ce
-/home/wen/AutoDescription/forRanjana/getECsummaryRegMol_forRanjana.pl ce
-/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl bma
-/home/wen/AutoDescription/forRanjana/getECsummaryAO_forRanjana.pl ppa
 #After these are done. Copy all the files to canopus ftp site. 
